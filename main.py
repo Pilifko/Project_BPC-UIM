@@ -19,7 +19,6 @@ Description:
     Skript berte jako volný rámec, který můžete upravit dle svých potřeb.    
 """
 # Import necessary modules
-# Import necessary modules
 import numpy as np
 import pandas as pd
 from sklearn.impute import IterativeImputer
@@ -29,7 +28,7 @@ from sklearn.impute import IterativeImputer
 
 def load_data(
         csv_data
-) -> np.ndarray:
+    ) -> np.ndarray:
     """
     Parameters
     ----------
@@ -42,7 +41,7 @@ def load_data(
 
 def data_preprocessing(
         data: np.ndarray = None
-) -> np.ndarray:
+    ) -> np.ndarray:
     """
     Function to preprocess your data.
 
