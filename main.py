@@ -19,35 +19,60 @@ Description:
     Skript berte jako volný rámec, který můžete upravit dle svých potřeb.    
 """
 # Import necessary modules
+# Import necessary modules
 import numpy as np
+import pandas as pd
+from sklearn.impute import IterativeImputer
+
+
 # My model
 
 def load_data(
-    # Add your parameters here....
-    ) -> np.ndarray:
+        csv_data
+) -> np.ndarray:
     """
-    Function to load your data.
-
     Parameters
     ----------
-    Add your parameters here....
+    csv_data -> csv input file
+    returns -> data from csv in ndarray
     """
-    # Load and return your data
-    raise NotImplementedError("Function load_data() is not implemented.")
+    data = pd.read_csv(csv_data)
+    return np.ndarray(data)
+
 
 def data_preprocessing(
-    # Add your parameters here....
-    # data: np.ndarray = None
-    ) -> np.ndarray:
+        data: np.ndarray = None
+) -> np.ndarray:
     """
     Function to preprocess your data.
 
     Parameters
     ----------
-    Add your parameters here....
+    data -> data to be preprocessed
+    df_imputed -> output preprocessed data
     """
     # Preprocess and return your data
-    raise NotImplementedError("Function data_preprocessing() is not implemented.")
+    df = pd.DataFrame(data)
+
+    df['age'] = df['age'].apply(lambda x: int(x) if 0 <= x <= 120 else np.nan).astype(float)
+    df['sex'] = df['sex'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
+    df['cp'] = df['cp'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
+    df['trestbps'] = df['trestbps'].apply(lambda x: int(x) if 100 <= x <= 300 else np.nan).astype(float)
+    df['chol'] = df['chol'].apply(lambda x: int(x) if 50 <= x <= 300 else np.nan).astype(float)
+    df['fbs'] = df['fbs'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
+    df['restecg'] = df['restecg'].apply(lambda x: x if x in [0, 1, 2] else np.nan).astype(float)
+    df['thalach'] = df['thalach'].apply(lambda x: int(x) if 50 <= x <= 250 else np.nan).astype(float)
+    df['exang'] = df['exang'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
+    df['oldpeak'] = df['oldpeak'].apply(lambda x: int(x) if 0 <= x <= 3 else np.nan).astype(float)
+    df['slope'] = df['slope'].apply(lambda x: x if x in [0, 1, 2] else np.nan).astype(float)
+    df['ca'] = df['ca'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
+    df['thal'] = df['thal'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
+    df['target'] = df['target'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
+
+    imputer = IterativeImputer(random_state=0)
+    df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+    df_imputed = round(df_imputed)
+    return np.ndarray(df_imputed)
 
 def my_model(
     # Add your parameters here....
