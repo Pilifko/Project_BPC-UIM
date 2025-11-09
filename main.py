@@ -36,7 +36,7 @@ def load_data(
     returns -> data from csv in ndarray
     """
     data = pd.read_csv(csv_data)
-    return np.ndarray(data)
+    return data
 
 
 def data_preprocessing(
@@ -71,7 +71,7 @@ def data_preprocessing(
     imputer = IterativeImputer(random_state=0)
     df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
     df_imputed = round(df_imputed)
-    return np.ndarray(df_imputed)
+    return df_imputed
 
 def my_model(
     # Add your parameters here....
