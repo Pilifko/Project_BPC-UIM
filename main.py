@@ -21,6 +21,7 @@ Description:
 # Import necessary modules
 import numpy as np
 import pandas as pd
+from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 
 
@@ -71,6 +72,7 @@ def data_preprocessing(
     imputer = IterativeImputer(random_state=0)
     df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
     df_imputed = round(df_imputed)
+
     return df_imputed
 
 def my_model(
@@ -120,6 +122,7 @@ def compute_statistics(
     raise NotImplementedError("Function compute_statistics() is not implemented.")
 
 if __name__ == "__main__":
-    main(
-        # Pass your parameters here....
-    )
+    # main(
+    #     # Pass your parameters here....
+    # )
+    data_preprocessing(load_data('heart-disease_data.csv'))
