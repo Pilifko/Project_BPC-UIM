@@ -3,8 +3,10 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-data = data_preprocessing(load_data("heart-disease_data.csv"))
+data, target = data_preprocessing(load_data("heart-disease_data.csv"))
 df = pd.DataFrame(data)
+df['target'] = target
+
 sns.set_theme(style="ticks")
 sns.pairplot(df, hue="target")
 plt.show()

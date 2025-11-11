@@ -21,7 +21,10 @@ Description:
 # Import necessary modules
 import numpy as np
 import pandas as pd
+from pandas.core.interchange.dataframe_protocol import DataFrame
 from sklearn.experimental import enable_iterative_imputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 from sklearn.impute import IterativeImputer
 
 
@@ -29,27 +32,28 @@ from sklearn.impute import IterativeImputer
 
 def load_data(
         csv_data
-    ) -> np.ndarray:
+    ) -> DataFrame:
     """
     Parameters
     ----------
     csv_data -> csv input file
-    returns -> data from csv in ndarray
+    returns -> data from csv in DataFrame
     """
     data = pd.read_csv(csv_data)
     return data
 
 
 def data_preprocessing(
-        data: np.ndarray = None
-    ) -> np.ndarray:
+        data: DataFrame = None
+    ) -> tuple:
     """
     Function to preprocess your data.
 
     Parameters
     ----------
     data -> data to be preprocessed
-    df_imputed -> output preprocessed data
+    df_pca -> output preprocessed data
+    target -> output vector of target variable
     """
     # Preprocess and return your data
     df = pd.DataFrame(data)
@@ -73,7 +77,16 @@ def data_preprocessing(
     df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
     df_imputed = round(df_imputed)
 
-    return df_imputed
+    target = df['target']
+    del df_imputed['target']
+
+    df_scaled = StandardScaler().fit_transform(df_imputed)
+    df_scaled = pd.DataFrame(df_scaled, columns=df_imputed.columns)
+
+    pca = PCA(n_components=10, svd_solver='full')
+    df_pca = pca.fit_transform(df_scaled)
+    print(sum(pca.explained_variance_ratio_))
+    return df_pca, target
 
 def my_model(
     # Add your parameters here....
