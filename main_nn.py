@@ -34,6 +34,9 @@ import torchvision
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, matthews_corrcoef
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 
 # My model
@@ -111,29 +114,6 @@ class NeuralNetwork(nn.Module):
         return x
 
 model = NeuralNetwork()
-
-
-def main(
-    # Add your parameters here....
-    ) -> None:
-    """
-    Main function to run the project.
-
-    Parameters
-    ----------
-    Add your parameters here....
-    """
-    # Initialize and run your model
-
-    # model = my_model(
-    #     # Pass your parameters here....
-    # )
-
-    # Add your code here....
-
-    # Print Matthews Correlation Coefficient (MCC)
-    # print(f"Matthews Correlation Coefficient (MCC): {matthews_corrcoef}")
-    raise NotImplementedError("Function main() is not implemented.")
 
 def compute_statistics(y_pred: torch.Tensor, y_true: torch.Tensor) -> dict:
     """
@@ -231,3 +211,4 @@ if __name__ == "__main__":
         print("Statistics on test set:")
         for key, value in stats.items():
             print(f"{key}: {value:.4f}")
+
