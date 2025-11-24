@@ -1,4 +1,4 @@
-from catboost import CatBoostClassifier
+from cb import CatBoostClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from main import *

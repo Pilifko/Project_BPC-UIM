@@ -1,5 +1,5 @@
 import optuna
-from catboost import CatBoostClassifier
+from cb import CatBoostClassifier
 from sklearn.model_selection import cross_val_score
 from main import *
 
