@@ -58,6 +58,9 @@ def data_preprocessing(
     # Preprocess and return your data
     df = pd.DataFrame(data)
 
+    target = df['target']
+    del df['target']
+
     df['age'] = df['age'].apply(lambda x: int(x) if 0 <= x <= 120 else np.nan).astype(float)
     df['sex'] = df['sex'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
     df['cp'] = df['cp'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
@@ -71,22 +74,28 @@ def data_preprocessing(
     df['slope'] = df['slope'].apply(lambda x: x if x in [0, 1, 2] else np.nan).astype(float)
     df['ca'] = df['ca'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
     df['thal'] = df['thal'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
-    df['target'] = df['target'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
 
+    #oddelani nepotrebnych dat
+    del df['fbs']
+    del df['chol']
+
+    return df, target
+
+def process_data(data: DataFrame = None
+    ) -> DataFrame:
     imputer = IterativeImputer(random_state=0)
-    df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+    df_imputed = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
     df_imputed = round(df_imputed)
 
-    target = df['target']
-    del df_imputed['target']
+    df_imputed = df_imputed.round().astype(int)
 
     df_scaled = StandardScaler().fit_transform(df_imputed)
     df_scaled = pd.DataFrame(df_scaled, columns=df_imputed.columns)
 
-    pca = PCA(n_components=10, svd_solver='full')
-    df_pca = pca.fit_transform(df_scaled)
-    print(sum(pca.explained_variance_ratio_))
-    return df_pca, target
+    #pca = PCA(n_components=13, svd_solver='full')
+    #df_pca = pca.fit_transform(df_scaled)
+
+    return df_scaled
 
 def my_model(
     # Add your parameters here....
