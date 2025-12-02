@@ -23,8 +23,8 @@ def test_model(
     try:
         raw_data = load_data(csv_file)
     except FileNotFoundError:
-        print(f"Chyba: Soubor '{csv_path}' nebyl nalezen.")
-
+        print(f"Chyba: Soubor '{csv_file}' nebyl nalezen.")
+        return
 
     X, y = data_preprocessing(raw_data)
 
@@ -47,4 +47,4 @@ def test_model(
 
 
 if __name__ == "__main__":
-    test_model("heart-disease_data.csv")
+    test_model("heart-diseas_e_data.csv")
