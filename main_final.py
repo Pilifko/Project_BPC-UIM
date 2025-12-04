@@ -51,26 +51,23 @@ def data_preprocessing(data: pd.DataFrame) -> tuple:
     return df, target
 
 
-def process_data(X_train: pd.DataFrame, X_test: pd.DataFrame) -> tuple:
+def process_data(X) -> tuple:
     """
     Imputuje chybějící hodnoty a škáluje data.
     """
-    cols = X_train.columns
+    cols = X.columns
 
     imputer = IterativeImputer(random_state=42, max_iter=10)
 
-    X_train_imputed = imputer.fit_transform(X_train)
-    X_test_imputed = imputer.transform(X_test)
+    X_imputed = imputer.fit_transform(X)
 
     scaler = StandardScaler()
 
-    X_train_scaled = scaler.fit_transform(X_train_imputed)
-    X_test_scaled = scaler.transform(X_test_imputed)
+    X_scaled = scaler.fit_transform(X_imputed)
 
-    X_train_final = pd.DataFrame(X_train_scaled, columns=cols)
-    X_test_final = pd.DataFrame(X_test_scaled, columns=cols)
+    X_final = pd.DataFrame(X_scaled, columns=cols)
 
-    return X_train_final, X_test_final
+    return X_final
 
 
 def visualize_data(X: pd.DataFrame, y: pd.Series):
@@ -144,7 +141,7 @@ def optimize_catboost(X: pd.DataFrame, y: pd.Series, n_trials: int) -> dict:
             'allow_writing_files': False
         }
 
-        skf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+        skf = StratifiedKFold(n_splits=3, shuffle=True, random_state=43)
         scores = []
 
         for train_index, val_index in skf.split(X, y):
@@ -227,11 +224,12 @@ def main(csv_path: str) -> None:
 
     # 3. Rozdělení na Train a Test (Stratified)
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+        X, y, test_size=0.2, random_state=1, stratify=y
     )
 
     # 4. Process (Imputace a Škálování)
-    X_train_processed, X_test_processed = process_data(X_train, X_test)
+    X_train_processed = process_data(X_train)
+    X_test_processed = process_data(X_test)
 
     # 5. Bayesovská optimalizace
     best_params = optimize_catboost(X_train_processed, y_train, n_trials=10)
@@ -259,7 +257,7 @@ def main(csv_path: str) -> None:
     print(stats['Confusion Matrix'])
 
 
-    y_pred_full = model.predict(process_data(X, X)[0])
+    y_pred_full = model.predict(process_data(X))
     stats_full = compute_statistics(y, y_pred_full)
 
     print("\n--- Výsledky modelu (Full dataset) ---")
@@ -267,6 +265,7 @@ def main(csv_path: str) -> None:
     print(f"Accuracy: {stats_full['Accuracy']:.4f}")
     print(f"F1 Score: {stats_full['F1 Score']:.4f}")
 
+    model.save_model('heart_disease_prediction_model')
 
 if __name__ == "__main__":
     main('heart-disease_data.csv')

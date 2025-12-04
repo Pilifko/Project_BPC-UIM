@@ -1,47 +1,50 @@
 # -*- coding: utf-8 -*-
 
-"""
-Created on 11. 09. 2025 at 11:33:18
 
-Author: Richard Redina
-Email: 195715@vut.cz
-Affiliation:
-         International Clinical Research Center, Brno
-         Brno University of Technology, Brno
-GitHub: RicRedi
-
-(._.)
- <|>
-_/|_
-
-Description:
-    Tento script slouží k testování vašeho modelu.
-    V rámci testování byste měli vytvořit funkci, která načte data a model,
-    provede testování a vypíše výsledky včetně matice záměny a mathews correlation coefficient.
-"""
 # Import necessary modules
 import numpy as np
+from main_final import *
+import pandas as pd
+from catboost import CatBoostClassifier
 
 def test_model(
-    # Add your parameters here....
+    csv_file: str = None,
     ) -> np.ndarray:
     """
     Function to test your model.
 
     Parameters
     ----------
-    Add your parameters here....
+    csv_file -> csv file path (heart disease dataset)
     """
+
     # Test and return your results
     # load data
+    try:
+        raw_data = load_data(csv_file)
+    except FileNotFoundError:
+        print(f"Chyba: Soubor '{csv_file}' nebyl nalezen.")
+        return
+
+    X, y = data_preprocessing(raw_data)
+
+    X_processed = process_data(X)
+
     # load model
+    model = CatBoostClassifier()  # parameters not required.
+    model.load_model('heart_disease_prediction_model')
 
-    # test_results = None
+    y_pred = model.predict(X_processed)
 
-    # compute metrics
-    # print confusion matrix
-    # print mathews correlation coefficient
-    raise NotImplementedError("Function test_model() is not implemented.")
+    stats = compute_statistics(y, y_pred)
+
+    print("\n--- Výsledky modelu (Test set) ---")
+    print(f"Matthews Correlation Coefficient (MCC): {stats['MCC']:.4f}")
+    print(f"Accuracy: {stats['Accuracy']:.4f}")
+    print(f"F1 Score: {stats['F1 Score']:.4f}")
+    print("\nConfusion Matrix:")
+    print(stats['Confusion Matrix'])
+
 
 if __name__ == "__main__":
-    test_model()
+    test_model("heart-diseas_e_data.csv")
