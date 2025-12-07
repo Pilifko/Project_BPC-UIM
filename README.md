@@ -7,7 +7,9 @@ Tento skript ďalej obsahuje všetky funkcie potrebné pre trénovanie modelu:
 
 * data_preprocessing(data): Odstráni stĺpce s nízkou koreláciou ku target hodnotám ('fbs','chol') a nahradí nelogické/neplatné hodnoty np.nan.
 
-* impute_data(X, X_test): Imputácia chýbajúcich hodnôt pomocou IterativeImputer (MICE). Táto funkcia tiež volá konečné spracovanie imputovaných dát (process_data).
+* create_imputer(X): Imputácia chybajúcich hodnôt pomocou IterativeImputer (MICE), který se i uloží k dalšiemu volání. Táto funkcia tiež volá konečné spracovanie imputovaných dát (process_data).
+
+* impute_data(X): Imputácia chýbajúcich hodnôt pomocou načteného imputeru. Táto funkcia tiež volá konečné spracovanie imputovaných dát (process_data).
 
 * process_data(X): Post-imputačné spracovanie. Zaokrúhľuje imputované hodnoty na celé čísla pre kategorické stĺpce ('sex', 'cp', 'restecg', 'thal') a nastavuje správne dátové typy (int).
 
