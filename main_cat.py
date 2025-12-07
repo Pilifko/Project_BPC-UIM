@@ -1,7 +1,6 @@
-from cb import CatBoostClassifier
-from sklearn.model_selection import StratifiedKFold, cross_val_predict
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
-from main import *
+from sklearn.model_selection import cross_val_predict
+from sklearn.metrics import precision_score, recall_score
+from main_final import *
 
 X, y = data_preprocessing(load_data("heart-disease_data.csv"))
 

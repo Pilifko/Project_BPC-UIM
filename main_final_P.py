@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
-# importování modulů:
+# Import necessary modules
 import numpy as np
 import pandas as pd
 import optuna
-from catboost import CatBoostClassifier, Pool
+from catboost import CatBoostClassifier
 from pandas.core.interchange.dataframe_protocol import DataFrame
-from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
-from sklearn.metrics import f1_score, matthews_corrcoef, accuracy_score, confusion_matrix, classification_report
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score, matthews_corrcoef, accuracy_score, confusion_matrix
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
-import matplotlib.pyplot as plt
-import seaborn as sns
 from typing import Optional
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
@@ -28,7 +25,7 @@ def load_data(csv_data: str) -> pd.DataFrame:
 def data_preprocessing(data: pd.DataFrame) -> tuple:
     """
     Vyčistí data, odstraní odlehlé hodnoty a nepotřebné sloupce (chol, fbs).
-    Vrací X (features) a y (target).
+    Vrací df (features) a target (target).
     """
     df = data.copy()
 
@@ -52,7 +49,9 @@ def data_preprocessing(data: pd.DataFrame) -> tuple:
 
     return df, target
 
-def impute_data(X,X_test: Optional[pd.DataFrame] = None) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]:
+
+def impute_data(X,
+                X_test: Optional[pd.DataFrame] = None) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]:
     """
     Imputuje chybějící hodnoty.
     """
@@ -78,7 +77,6 @@ def process_data(X) -> DataFrame:
     """
     Zpracuje imputovaná data.
     """
-
     cat_cols = ['sex', 'cp', 'restecg', 'thal']
     cols_cat = [c for c in cat_cols if c in X.columns]
 
@@ -91,7 +89,9 @@ def process_data(X) -> DataFrame:
 
     return X
 
-def train_final_model(X_train: pd.DataFrame, y_train: pd.Series) -> CatBoostClassifier:
+
+def train_final_model(X_train: pd.DataFrame,
+                      y_train: pd.Series) -> CatBoostClassifier:
     """
     Natrénuje finální model s nejlepšími parametry a vykresluje loss fci.
     """
@@ -145,8 +145,9 @@ def main(csv_path: str) -> None:
 
     # 3. Rozdělení na Train a Test (Stratified)
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=22, stratify=y
+X, y, test_size=0.2, random_state=22, stratify=y
     )
+
     # 4. Process (Imputace)
     X_train_processed, X_test_processed = impute_data(X_train, X_test)
 

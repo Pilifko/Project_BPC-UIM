@@ -1,7 +1,6 @@
-import optuna
-from cb import CatBoostClassifier
-from sklearn.model_selection import cross_val_score, train_test_split
-from main_final import *
+from sklearn.model_selection import StratifiedKFold
+from main_final_P import *
+
 optuna.logging.set_verbosity(optuna.logging.INFO)
 
 raw_data = load_data("heart-disease_data.csv")
@@ -9,7 +8,7 @@ X, y = data_preprocessing(raw_data)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=83, stratify=y)
 
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=43)
+
 def objective(trial):
     params = {
         'iterations': trial.suggest_int('iterations', 200, 700),
@@ -23,9 +22,12 @@ def objective(trial):
         'one_hot_max_size': 10
 
     }
+
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=43)
+
     scores = []
     for train_index, val_index in skf.split(X_train, y_train):
-        X_tr, X_val = process_data(X_train.iloc[train_index]), process_data(X_train.iloc[val_index])
+        X_tr, X_val = impute_data(X_train.iloc[train_index]), impute_data(X_train.iloc[val_index])
         y_tr, y_val = y_train.iloc[train_index], y_train.iloc[val_index]
 
         model = CatBoostClassifier(**params)
@@ -36,6 +38,7 @@ def objective(trial):
         scores.append(score)
     score = np.mean(scores)
     return score
+
 
 study = optuna.create_study(direction='maximize')
 study.optimize(objective, n_trials=500)

@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
-
-
 # Import necessary modules
-import numpy as np
-from main_final import *
-import pandas as pd
-from catboost import CatBoostClassifier
+from main_final_P import *
 
-def test_model(
-    csv_file: str = None,
-    ) -> np.ndarray:
+
+def run_model(
+        csv_file: str = None,
+) -> np.ndarray:
     """
     Function to test your model.
 
@@ -17,7 +13,6 @@ def test_model(
     ----------
     csv_file -> csv file path (heart disease dataset)
     """
-
     # Test and return your results
     # load data
     try:
@@ -47,4 +42,4 @@ def test_model(
 
 
 if __name__ == "__main__":
-    test_model("to_co_nam_schovavali.csv")
+    run_model(r"to_co_nam_schovavali.csv")

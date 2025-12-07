@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-
-
+"""
+Description:
+    Tento script slouží k testování vašeho modelu.
+    V rámci testování byste měli vytvořit funkci, která načte data a model,
+    provede testování a vypíše výsledky včetně matice záměny a mathews correlation coefficient.
+"""
 # Import necessary modules
 import numpy as np
 from main_final import *
