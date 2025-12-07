@@ -9,7 +9,6 @@ from sklearn.metrics import f1_score, matthews_corrcoef, accuracy_score, confusi
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 import joblib
-from typing import Optional
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
@@ -63,7 +62,7 @@ def data_preprocessing(data: DataFrame) -> tuple:
 def create_imputer(X: DataFrame
                 ) -> DataFrame:
     """
-    Imputes NaN values of Dataframe X and save the imputer.
+    Imputes NaN values of Dataframe X and saves the imputer.
 
     Input:
     X: Dataframe to be imputed
