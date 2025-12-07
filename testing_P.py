@@ -42,4 +42,5 @@ def run_model(
 
 
 if __name__ == "__main__":
+    # Enter file name for model testing
     run_model(r"your_file.csv")

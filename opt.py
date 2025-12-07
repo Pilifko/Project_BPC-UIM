@@ -18,7 +18,7 @@ def objective(trial):
         'loss_function': 'Logloss',
         'verbose': 200,
         'random_seed': 42,
-        'cat_features': [1, 2, 4, 10],
+        'cat_features': ['sex', 'cp', 'restecg', 'thal'],
         'one_hot_max_size': 10
 
     }

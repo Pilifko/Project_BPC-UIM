@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, matthews_corrcoef, accuracy_score, confusion_matrix
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
+import joblib
 from typing import Optional
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
@@ -59,19 +60,16 @@ def data_preprocessing(data: DataFrame) -> tuple:
     return data, target
 
 
-def impute_data(X: DataFrame,
-                X_test: Optional[DataFrame] = None,
-                ) -> DataFrame | tuple[DataFrame, DataFrame]:
+def create_imputer(X: DataFrame
+                ) -> DataFrame:
     """
-    Imputes NaN values of Dataframe X and optionally X_test.
+    Imputes NaN values of Dataframe X and save the imputer.
 
     Input:
     X: Dataframe to be imputed
-    X_test: (optional) Dataframe to be imputed
 
     Output:
     X_final: imputed DataFrame X
-    X_final_test: imputed DataFrame X_test, only if X_test is not None
     """
     cols = X.columns
 
@@ -81,14 +79,32 @@ def impute_data(X: DataFrame,
     X_final = DataFrame(X_imputed, columns=cols)
     X_final = process_data(X_final)
 
-    if X_test is not None:
-        cols_test = X_test.columns
-        X_test_imputed = imputer.transform(X_test)
-        X_final_test = DataFrame(X_test_imputed, columns=cols_test)
-        X_final_test = process_data(X_final_test)
-        return X_final, X_final_test
-    else:
-        return X_final
+    # Save the imputer
+    joblib.dump(imputer, 'imputer.pkl')
+
+    return X_final
+
+
+def impute_data(X: DataFrame
+                ) -> DataFrame:
+    """
+    Imputes NaN values of Dataframe X.
+
+    Input:
+    X: Dataframe to be imputed
+
+    Output:
+    X_final: imputed DataFrame X
+    """
+    cols = X.columns
+
+    imputer = joblib.load('imputer.pkl')
+    X_imputed = imputer.transform(X)
+
+    X_final = DataFrame(X_imputed, columns=cols)
+    X_final = process_data(X_final)
+
+    return X_final
 
 
 def process_data(X: DataFrame) -> DataFrame:
@@ -192,7 +208,8 @@ def main(csv_path: str) -> None:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=22, stratify=y)
 
     # 4. Imputation
-    X_train_processed, X_test_processed = impute_data(X_train, X_test)
+    X_train_processed = create_imputer(X_train)
+    X_test_processed = impute_data(X_test)
 
     # 5. Final model training
     print("\n--- Trénink finálního modelu ---")
