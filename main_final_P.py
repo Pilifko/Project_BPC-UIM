@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import optuna
 from catboost import CatBoostClassifier
-from pandas.core.interchange.dataframe_protocol import DataFrame
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, matthews_corrcoef, accuracy_score, confusion_matrix
 from sklearn.experimental import enable_iterative_imputer
@@ -16,7 +15,13 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 def load_data(csv_data: str) -> pd.DataFrame:
     """
-    Načte data z CSV souboru.
+    Loads data from csv file.
+
+    Input:
+    csv_data: csv file path
+
+    Output:
+    DataFrame from csv file
     """
     data = pd.read_csv(csv_data)
     return data
@@ -24,36 +29,49 @@ def load_data(csv_data: str) -> pd.DataFrame:
 
 def data_preprocessing(data: pd.DataFrame) -> tuple:
     """
-    Vyčistí data, odstraní odlehlé hodnoty a nepotřebné sloupce (chol, fbs).
-    Vrací df (features) a target (target).
+    Function to preprocess data.
+    Deletes cols with very low correlation.
+
+    Input:
+    data: DataFrame to be preprocessed
+
+    Output:
+    tuple: data and their target values
     """
-    df = data.copy()
+    target = data['target']
 
-    target = df['target']
+    del data['target']
+    del data['fbs']
+    del data['chol']
 
-    del df['target']
-    del df['fbs']
-    del df['chol']
+    data['age'] = data['age'].apply(lambda x: int(x) if 0 <= x <= 120 else np.nan).astype(float)
+    data['sex'] = data['sex'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
+    data['cp'] = data['cp'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
+    data['trestbps'] = data['trestbps'].apply(lambda x: int(x) if 100 <= x <= 300 else np.nan).astype(float)
+    data['restecg'] = data['restecg'].apply(lambda x: x if x in [0, 1, 2] else np.nan).astype(float)
+    data['thalach'] = data['thalach'].apply(lambda x: int(x) if 50 <= x <= 250 else np.nan).astype(float)
+    data['exang'] = data['exang'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
+    data['oldpeak'] = data['oldpeak'].apply(lambda x: int(x) if 0 <= x <= 3 else np.nan).astype(float)
+    data['slope'] = data['slope'].apply(lambda x: x if x in [0, 1, 2] else np.nan).astype(float)
+    data['ca'] = data['ca'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
+    data['thal'] = data['thal'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
 
-    df['age'] = df['age'].apply(lambda x: int(x) if 0 <= x <= 120 else np.nan).astype(float)
-    df['sex'] = df['sex'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
-    df['cp'] = df['cp'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
-    df['trestbps'] = df['trestbps'].apply(lambda x: int(x) if 100 <= x <= 300 else np.nan).astype(float)
-    df['restecg'] = df['restecg'].apply(lambda x: x if x in [0, 1, 2] else np.nan).astype(float)
-    df['thalach'] = df['thalach'].apply(lambda x: int(x) if 50 <= x <= 250 else np.nan).astype(float)
-    df['exang'] = df['exang'].apply(lambda x: x if x in [0, 1] else np.nan).astype(float)
-    df['oldpeak'] = df['oldpeak'].apply(lambda x: int(x) if 0 <= x <= 3 else np.nan).astype(float)
-    df['slope'] = df['slope'].apply(lambda x: x if x in [0, 1, 2] else np.nan).astype(float)
-    df['ca'] = df['ca'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
-    df['thal'] = df['thal'].apply(lambda x: x if x in [0, 1, 2, 3] else np.nan).astype(float)
-
-    return df, target
+    return data, target
 
 
-def impute_data(X,
-                X_test: Optional[pd.DataFrame] = None) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]:
+def impute_data(X: pd.DataFrame,
+                X_test: Optional[pd.DataFrame] = None,
+                ) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Imputuje chybějící hodnoty.
+    Imputes NaN values of Dataframe X and optionally X_test.
+
+    Input:
+    X: Dataframe to be imputed
+    X_test: (optional) Dataframe to be imputed
+
+    Output:
+    X_final: imputed DataFrame X
+    X_final_test: imputed DataFrame X_test, only if X_test is not None
     """
     cols = X.columns
 
@@ -73,9 +91,15 @@ def impute_data(X,
         return X_final
 
 
-def process_data(X) -> DataFrame:
+def process_data(X:pd.DataFrame) -> pd.DataFrame:
     """
-    Zpracuje imputovaná data.
+    Processes Dataframe X to contain correct value types.
+
+    Input:
+    X: Dataframe to be processed
+
+    Output:
+    X: processed Dataframe
     """
     cat_cols = ['sex', 'cp', 'restecg', 'thal']
     cols_cat = [c for c in cat_cols if c in X.columns]
@@ -93,7 +117,14 @@ def process_data(X) -> DataFrame:
 def train_final_model(X_train: pd.DataFrame,
                       y_train: pd.Series) -> CatBoostClassifier:
     """
-    Natrénuje finální model s nejlepšími parametry a vykresluje loss fci.
+    Trains CatBoostClassifier model with training data.
+
+    Input:
+    X_train: training data
+    y_train: training labels
+
+    Output:
+    model: trained CatBoostClassifier model
     """
     #full_params = params.copy()
     full_params={
@@ -117,7 +148,14 @@ def train_final_model(X_train: pd.DataFrame,
 
 def compute_statistics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
     """
-    Vypočítá metriky modelu.
+    Computes statistics of prediction accuracy.
+
+    Input:
+    y_true: true labels
+    y_pred: predicted labels
+
+    Output:
+    stats: statistics of prediction accuracy
     """
     stats = {
         "Accuracy": accuracy_score(y_true, y_pred),
@@ -130,32 +168,38 @@ def compute_statistics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
 
 def main(csv_path: str) -> None:
     """
-    Hlavní funkce, která řídí tok programu.
+    Main function which contains the whole pipeline
+
+    Input:
+    csv_path: path to csv file
+
+    Output:
+    Prints statistics of prediction accuracy into terminal.
     """
-    # 1. Načtení dat
+    # 1. Loading data
     try:
         raw_data = load_data(csv_path)
     except FileNotFoundError:
         print(f"Chyba: Soubor '{csv_path}' nebyl nalezen.")
         return
 
-    # 2. Preprocessing (čištění)
+    # 2. Preprocessing
     X, y = data_preprocessing(raw_data)
     print(f"Data po vyčištění: {X.shape}, Features: {list(X.columns)}")
 
-    # 3. Rozdělení na Train a Test (Stratified)
+    # 3. Train Test split
     X_train, X_test, y_train, y_test = train_test_split(
 X, y, test_size=0.2, random_state=22, stratify=y
     )
 
-    # 4. Process (Imputace)
+    # 4. Imputation
     X_train_processed, X_test_processed = impute_data(X_train, X_test)
 
-    # 5. Trénink finálního modelu
+    # 5. Final model training
     print("\n--- Trénink finálního modelu ---")
     model = train_final_model(X_train_processed, y_train)
 
-    # 6. Evaluace
+    # 6. Evaluation
     y_pred = model.predict(X_test_processed)
 
     stats = compute_statistics(y_test, y_pred)
