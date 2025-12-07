@@ -5,7 +5,7 @@ from main_final_P import *
 
 def run_model(
         csv_file: str = None,
-) -> np.ndarray:
+) -> None:
     """
     Function to test your model.
 

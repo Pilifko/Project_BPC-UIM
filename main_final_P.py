@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Import necessary modules
 import numpy as np
-import pandas as pd
+from pandas import Series, read_csv, DataFrame
 import optuna
 from catboost import CatBoostClassifier
 from sklearn.model_selection import train_test_split
@@ -13,7 +13,7 @@ from typing import Optional
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
-def load_data(csv_data: str) -> pd.DataFrame:
+def load_data(csv_data: str) -> DataFrame:
     """
     Loads data from csv file.
 
@@ -23,11 +23,11 @@ def load_data(csv_data: str) -> pd.DataFrame:
     Output:
     DataFrame from csv file
     """
-    data = pd.read_csv(csv_data)
+    data = read_csv(csv_data)
     return data
 
 
-def data_preprocessing(data: pd.DataFrame) -> tuple:
+def data_preprocessing(data: DataFrame) -> tuple:
     """
     Function to preprocess data.
     Deletes cols with very low correlation.
@@ -59,9 +59,9 @@ def data_preprocessing(data: pd.DataFrame) -> tuple:
     return data, target
 
 
-def impute_data(X: pd.DataFrame,
-                X_test: Optional[pd.DataFrame] = None,
-                ) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]:
+def impute_data(X: DataFrame,
+                X_test: Optional[DataFrame] = None,
+                ) -> DataFrame | tuple[DataFrame, DataFrame]:
     """
     Imputes NaN values of Dataframe X and optionally X_test.
 
@@ -78,20 +78,20 @@ def impute_data(X: pd.DataFrame,
     imputer = IterativeImputer(random_state=42, max_iter=10)
     X_imputed = imputer.fit_transform(X)
 
-    X_final = pd.DataFrame(X_imputed, columns=cols)
+    X_final = DataFrame(X_imputed, columns=cols)
     X_final = process_data(X_final)
 
     if X_test is not None:
         cols_test = X_test.columns
         X_test_imputed = imputer.transform(X_test)
-        X_final_test = pd.DataFrame(X_test_imputed, columns=cols_test)
+        X_final_test = DataFrame(X_test_imputed, columns=cols_test)
         X_final_test = process_data(X_final_test)
         return X_final, X_final_test
     else:
         return X_final
 
 
-def process_data(X:pd.DataFrame) -> pd.DataFrame:
+def process_data(X: DataFrame) -> DataFrame:
     """
     Processes Dataframe X to contain correct value types.
 
@@ -114,8 +114,9 @@ def process_data(X:pd.DataFrame) -> pd.DataFrame:
     return X
 
 
-def train_final_model(X_train: pd.DataFrame,
-                      y_train: pd.Series) -> CatBoostClassifier:
+def train_final_model(X_train: DataFrame,
+                      y_train: Series
+                      ) -> CatBoostClassifier:
     """
     Trains CatBoostClassifier model with training data.
 
@@ -126,8 +127,8 @@ def train_final_model(X_train: pd.DataFrame,
     Output:
     model: trained CatBoostClassifier model
     """
-    #full_params = params.copy()
-    full_params={
+    # full_params = params.copy()
+    full_params = {
         'iterations': 245,
         'depth': 2,
         'learning_rate': 0.023,
@@ -188,9 +189,7 @@ def main(csv_path: str) -> None:
     print(f"Data po vyčištění: {X.shape}, Features: {list(X.columns)}")
 
     # 3. Train Test split
-    X_train, X_test, y_train, y_test = train_test_split(
-X, y, test_size=0.2, random_state=22, stratify=y
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=22, stratify=y)
 
     # 4. Imputation
     X_train_processed, X_test_processed = impute_data(X_train, X_test)
@@ -212,6 +211,7 @@ X, y, test_size=0.2, random_state=22, stratify=y
     print(stats['Confusion Matrix'])
 
     model.save_model('heart_disease_prediction_model')
+
 
 if __name__ == "__main__":
     main('heart-disease_data.csv')
