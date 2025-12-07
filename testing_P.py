@@ -42,4 +42,4 @@ def run_model(
 
 
 if __name__ == "__main__":
-    run_model(r"to_co_nam_schovavali.csv")
+    run_model(r"vas_soubor.csv")

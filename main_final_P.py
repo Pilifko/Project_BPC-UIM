@@ -211,15 +211,6 @@ X, y, test_size=0.2, random_state=22, stratify=y
     print("\nConfusion Matrix:")
     print(stats['Confusion Matrix'])
 
-
-    y_pred_full = model.predict(impute_data(X))
-    stats_full = compute_statistics(y, y_pred_full)
-
-    print("\n--- Výsledky modelu (Full dataset) ---")
-    print(f"Matthews Correlation Coefficient (MCC): {stats_full['MCC']:.4f}")
-    print(f"Accuracy: {stats_full['Accuracy']:.4f}")
-    print(f"F1 Score: {stats_full['F1 Score']:.4f}")
-
     model.save_model('heart_disease_prediction_model')
 
 if __name__ == "__main__":
